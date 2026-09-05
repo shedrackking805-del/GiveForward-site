@@ -1,26 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Start a fundraiser — GiveForward</title><link rel="stylesheet" href="style.css">
-</head>
-<body>
-<header class="site-header"><div class="container nav"><a class="logo" href="index.html">GiveForward</a><nav><a href="index.html">Home</a></nav></div></header>
-<main class="create-page">
-<div class="container narrow">
-  <p class="eyebrow">Start fundraising</p>
-  <h1>Create your fundraiser</h1>
-  <p class="muted">Tell your story. You can edit these details later.</p>
-  <form id="create-form" class="form-card">
-    <label>Fundraiser title<input name="title" required placeholder="What are you raising money for?"></label>
-    <label>Category<select name="category"><option>Medical</option><option>Education</option><option>Emergency</option><option>Community</option><option>Other</option></select></label>
-    <label>Fundraising goal<input name="goal" type="number" min="1" required placeholder="10000"></label>
-    <label>Your story<textarea name="story" rows="7" required placeholder="Explain why you are raising money..."></textarea></label>
-    <label>Image URL (optional)<input name="image" placeholder="https://example.com/image.jpg"></label>
-    <button class="primary-button" type="submit">Create fundraiser</button>
-  </form>
-</div>
-</main>
-<script src="app.js"></script>
-</body>
-</html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Start a fundraiser — GiveForward</title><link rel="stylesheet" href="style.css"></head>
+<body><header><div class="container nav"><a href="index.html" class="brand"><span>♥</span> GiveForward</a><nav><a href="index.html">Home</a></nav></div></header>
+<main class="create"><div class="container narrow"><div class="kicker">Start fundraising</div><h1>Create your fundraiser</h1><p class="muted-text">Give people a clear reason to care and make your goal easy to understand.</p>
+<form id="form" class="form-card">
+<label>Fundraiser title<input name="title" required placeholder="e.g. Help with medical expenses"></label>
+<label>Category<select name="category"><option>Medical</option><option>Education</option><option>Emergency</option><option>Community</option><option>Other</option></select></label>
+<label>Fundraising goal<input name="goal" type="number" min="1" required placeholder="10000"></label>
+<label>Your story<textarea name="story" rows="8" required placeholder="Tell your story..."></textarea></label>
+<label>Cover image URL <input name="image" placeholder="Optional image URL"></label>
+<button class="btn large" type="submit">Create fundraiser</button>
+</form></div></main>
+<script src="app.js"></script></body></html>
