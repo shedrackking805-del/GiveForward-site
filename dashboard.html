@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - GiveForward</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+    <a href="index.html" class="brand">
+      <span>♥</span> GiveForward
+    </a>
+
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="create.html">Start a fundraiser</a>
+    </nav>
+  </div>
+</header>
+
+<main class="dashboard-page">
+  <div class="container">
+
+    <section class="dashboard-header">
+      <div>
+        <div class="kicker">Your account</div>
+        <h1 id="welcome">Welcome back</h1>
+        <p class="muted-text" id="userEmail"></p>
+      </div>
+
+      <button class="btn" id="signOutButton">Sign out</button>
+    </section>
+
+    <section class="dashboard-grid">
+
+      <div class="dashboard-card">
+        <div class="dashboard-icon">📋</div>
+        <h2>My Fundraisers</h2>
+        <p>View and manage the fundraisers you create.</p>
+        <a href="#" class="btn outline" onclick="comingSoon(event)">
+          View fundraisers
+        </a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="dashboard-icon">➕</div>
+        <h2>Start a Fundraiser</h2>
+        <p>Create a fundraiser and share your story with others.</p>
+        <a href="create.html" class="btn">
+          Create fundraiser
+        </a>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="dashboard-icon">💰</div>
+        <h2>Funds Raised</h2>
+        <p class="dashboard-number">$0</p>
+        <span class="tiny">Your total funds raised</span>
+      </div>
+
+    </section>
+
+    <section class="dashboard-info">
+      <h2>Account information</h2>
+
+      <div class="info-row">
+        <span>Email</span>
+        <strong id="emailInfo">Loading...</strong>
+      </div>
+
+      <div class="info-row">
+        <span>Account status</span>
+        <strong>Verified ✓</strong>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<script src="supabase.js"></script>
+
+<script>
+  const client = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+  async function loadAccount() {
+    const {
+      data: { user },
+      error
+    } = await client.auth.getUser();
+
+    if (error || !user) {
+      window.location.href = "account.html";
+      return;
+    }
+
+    const email = user.email || "";
+
+    document.getElementById("userEmail").textContent = email;
+    document.getElementById("emailInfo").textContent = email;
+
+    const name =
+      user.user_metadata?.full_name ||
+      email.split("@")[0];
+
+    document.getElementById("welcome").textContent =
+      "Welcome back, " + name;
+  }
+
+  document.getElementById("signOutButton").addEventListener(
+    "click",
+    async function () {
+
+      const { error } = await client.auth.signOut();
+
+      if (!error) {
+        window.location.href = "index.html";
+      }
+    }
+  );
+
+  function comingSoon(event) {
+    event.preventDefault();
+    alert("Your fundraiser list will appear here once we connect the fundraiser database.");
+  }
+
+  loadAccount();
+</script>
+
+</body>
+    </html>
