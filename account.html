@@ -134,9 +134,15 @@
       if (mode === "signup") {
 
         const { data, error } = await supabaseClient.auth.signUp({
-          email: email,
-          password: password
-        });
+  email: email,
+  password: password,
+  options: {
+    emailRedirectTo: "https://shedrackking805-del.github.io/GiveForward-site/"
+  }
+});
+          
+          
+        
 
         if (error) throw error;
 
