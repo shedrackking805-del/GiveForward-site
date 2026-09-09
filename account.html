@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Account - GiveForward</title>
+
   <link rel="stylesheet" href="style.css">
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -12,159 +14,322 @@
 
 <header>
   <div class="container nav">
+
     <a href="index.html" class="brand">
       <span>♥</span> GiveForward
     </a>
+
     <nav>
       <a href="index.html">Home</a>
       <a href="create.html">Start a fundraiser</a>
     </nav>
+
   </div>
 </header>
 
+
 <main class="account-page">
+
   <div class="container account-grid">
 
     <section>
-      <div class="kicker">Your GiveForward account</div>
-      <h1>Manage your fundraisers in one place.</h1>
+
+      <div class="kicker">
+        Your GiveForward account
+      </div>
+
+      <h1>
+        Manage your fundraisers in one place.
+      </h1>
 
       <p class="muted-text">
         Create an account to start fundraisers and keep track of your campaigns.
       </p>
 
       <div class="account-points">
+
         <div>✓ Create and manage fundraisers</div>
+
         <div>✓ Track campaign progress</div>
+
         <div>✓ Keep your fundraiser details organized</div>
+
       </div>
+
     </section>
+
 
     <section class="form-card account-card">
 
       <div class="tabs">
-        <button class="tab active" id="loginTab" type="button">
+
+        <button
+          class="tab active"
+          id="loginTab"
+          type="button">
           Sign in
         </button>
 
-        <button class="tab" id="signupTab" type="button">
+        <button
+          class="tab"
+          id="signupTab"
+          type="button">
           Create account
         </button>
+
       </div>
+
 
       <form id="authForm">
 
         <label id="nameField" class="hidden">
+
           Full name
-          <input type="text" id="name" placeholder="Your name">
+
+          <input
+            type="text"
+            id="name"
+            placeholder="Your name">
+
         </label>
 
+
         <label>
+
           Email address
-          <input type="email" id="email" required placeholder="you@example.com">
+
+          <input
+            type="email"
+            id="email"
+            required
+            placeholder="you@example.com">
+
         </label>
+
 
         <label>
+
           Password
-          <input type="password" id="password" required
-                 minlength="6" placeholder="At least 6 characters">
+
+          <input
+            type="password"
+            id="password"
+            required
+            minlength="6"
+            placeholder="At least 6 characters">
+
         </label>
 
-        <button class="btn large full" type="submit" id="submitButton">
+
+        <button
+          class="btn large full"
+          type="submit"
+          id="submitButton">
+
           Sign in
+
         </button>
+
 
         <p id="message" class="tiny"></p>
 
       </form>
+
     </section>
 
   </div>
+
 </main>
+
 
 <script src="supabase.js"></script>
 
+
 <script>
-  const client = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY
-  );
 
-  let mode = "login";
+const client = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
 
-  const loginTab = document.getElementById("loginTab");
-  const signupTab = document.getElementById("signupTab");
-  const nameField = document.getElementById("nameField");
-  const submitButton = document.getElementById("submitButton");
-  const message = document.getElementById("message");
 
-  loginTab.addEventListener("click", function () {
-    mode = "login";
-    nameField.classList.add("hidden");
-    submitButton.textContent = "Sign in";
-    loginTab.classList.add("active");
-    signupTab.classList.remove("active");
-    message.textContent = "";
-  });
+let mode = "login";
 
-  signupTab.addEventListener("click", function () {
-    mode = "signup";
-    nameField.classList.remove("hidden");
-    submitButton.textContent = "Create account";
-    signupTab.classList.add("active");
-    loginTab.classList.remove("active");
-    message.textContent = "";
-  });
 
-  document.getElementById("authForm").addEventListener("submit", async function (event) {
+const loginTab =
+  document.getElementById("loginTab");
+
+const signupTab =
+  document.getElementById("signupTab");
+
+const nameField =
+  document.getElementById("nameField");
+
+const submitButton =
+  document.getElementById("submitButton");
+
+const message =
+  document.getElementById("message");
+
+
+/* SIGN IN TAB */
+
+loginTab.addEventListener("click", function () {
+
+  mode = "login";
+
+  nameField.classList.add("hidden");
+
+  submitButton.textContent = "Sign in";
+
+  loginTab.classList.add("active");
+
+  signupTab.classList.remove("active");
+
+  message.textContent = "";
+
+});
+
+
+/* CREATE ACCOUNT TAB */
+
+signupTab.addEventListener("click", function () {
+
+  mode = "signup";
+
+  nameField.classList.remove("hidden");
+
+  submitButton.textContent = "Create account";
+
+  signupTab.classList.add("active");
+
+  loginTab.classList.remove("active");
+
+  message.textContent = "";
+
+});
+
+
+/* FORM SUBMISSION */
+
+document
+  .getElementById("authForm")
+  .addEventListener("submit", async function (event) {
+
     event.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+
+    const email =
+      document
+        .getElementById("email")
+        .value
+        .trim();
+
+
+    const password =
+      document
+        .getElementById("password")
+        .value;
+
+
+    const name =
+      document
+        .getElementById("name")
+        .value
+        .trim();
+
 
     submitButton.disabled = true;
+
     message.textContent = "Please wait...";
+
 
     try {
 
+
+      /* CREATE ACCOUNT */
+
       if (mode === "signup") {
 
-        const { error } = await client.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            emailRedirectTo:
-              "https://shedrackking805-del.github.io/GiveForward-site/"
-          }
-        });
+        const { data, error } =
+          await client.auth.signUp({
 
-        if (error) throw error;
+            email: email,
+
+            password: password,
+
+            options: {
+
+              data: {
+                full_name: name
+              },
+
+              emailRedirectTo:
+                "https://shedrackking805-del.github.io/GiveForward-site/"
+
+            }
+
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
 
         message.textContent =
           "Account created. Check your email to confirm your account.";
 
-      } else {
-
-        const { error } = await client.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
-
-        if (error) throw error;
-
-        message.textContent = "Signed in successfully!";
-
-        setTimeout(function () {
-          window.location.href = "index.html";
-        }, 1000);
       }
 
-    } catch (error) {
-      message.textContent = error.message;
+
+      /* SIGN IN */
+
+      else {
+
+        const { data, error } =
+          await client.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        message.textContent =
+          "Signed in successfully!";
+
+
+        setTimeout(function () {
+
+          window.location.href =
+            "dashboard.html";
+
+        }, 800);
+
+      }
+
+
     }
 
+    catch (error) {
+
+      message.textContent =
+        error.message;
+
+    }
+
+
     submitButton.disabled = false;
+
   });
+
 </script>
 
 </body>
