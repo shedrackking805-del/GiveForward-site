@@ -1,9 +1,360 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fundraiser — GiveForward</title><link rel="stylesheet" href="style.css"></head>
-<body><header><div class="container nav"><a href="index.html" class="brand"><span>♥</span> GiveForward</a><nav><a href="index.html#discover">Discover</a><a href="create.html" class="btn">Start a fundraiser</a></nav></div></header>
-<main class="campaign-wrap"><div class="container campaign-layout">
- <article><div id="campaign-image" class="campaign-image">Fundraiser</div><div class="kicker" id="category"></div><h1 id="title">Loading...</h1><p class="story" id="story"></p></article>
- <aside class="donate-box"><div class="bar"><i id="progress"></i></div><div class="raised"><b id="raised"></b><span id="goal"></span></div><p id="donors" class="muted-text"></p><button class="btn full" onclick="openDonate()">Donate now</button><button class="outline full" onclick="share()">Share fundraiser</button><div class="note">Secure payment processing can be connected when the payment provider is configured.</div></aside>
-</div></main>
-<div id="modal" class="modal"><div class="modal-card"><button class="close" onclick="closeDonate()">×</button><h2>Support this fundraiser</h2><p class="muted-text">Choose an amount to continue.</p><div class="amounts"><button onclick="pick(10)">$10</button><button onclick="pick(25)">$25</button><button onclick="pick(50)">$50</button><button onclick="pick(100)">$100</button></div><input id="custom" type="number" min="1" placeholder="Custom amount"><button class="btn full" onclick="checkout()">Continue</button><p class="tiny">Demo checkout — no money is charged in this prototype.</p></div></div>
-<script src="app.js"></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Fundraiser — GiveForward</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <div class="container nav">
+
+    <a href="index.html" class="brand">
+      <span>♥</span> GiveForward
+    </a>
+
+    <nav>
+      <a href="index.html#discover">Discover</a>
+      <a href="create.html" class="btn">Start a fundraiser</a>
+    </nav>
+
+  </div>
+</header>
+
+
+<main class="campaign-wrap">
+
+  <div class="container campaign-layout">
+
+    <article>
+
+      <div id="campaign-image" class="campaign-image">
+        Fundraiser
+      </div>
+
+      <div class="kicker" id="category"></div>
+
+      <h1 id="title">Loading...</h1>
+
+      <p class="story" id="story"></p>
+
+    </article>
+
+
+    <aside class="donate-box">
+
+      <div class="bar">
+        <i id="progress"></i>
+      </div>
+
+      <div class="raised">
+        <b id="raised"></b>
+        <span id="goal"></span>
+      </div>
+
+      <p id="donors" class="muted-text"></p>
+
+
+      <button
+        class="btn full"
+        onclick="openDonate()">
+        Donate now
+      </button>
+
+
+      <button
+        class="outline full"
+        onclick="share()">
+        Share fundraiser
+      </button>
+
+
+      <div class="note">
+        Secure payments are processed through Flutterwave.
+      </div>
+
+    </aside>
+
+  </div>
+
+</main>
+
+
+<!-- DONATION MODAL -->
+
+<div id="modal" class="modal">
+
+  <div class="modal-card">
+
+    <button
+      class="close"
+      onclick="closeDonate()">
+      ×
+    </button>
+
+
+    <h2>Support this fundraiser</h2>
+
+
+    <p class="muted-text">
+      Choose an amount to continue.
+    </p>
+
+
+    <div class="amounts">
+
+      <button onclick="pick(10)">
+        $10
+      </button>
+
+      <button onclick="pick(25)">
+        $25
+      </button>
+
+      <button onclick="pick(50)">
+        $50
+      </button>
+
+      <button onclick="pick(100)">
+        $100
+      </button>
+
+    </div>
+
+
+    <input
+      id="custom"
+      type="number"
+      min="1"
+      step="0.01"
+      placeholder="Custom amount">
+
+
+    <input
+      id="donorEmail"
+      type="email"
+      placeholder="Your email address">
+
+
+    <button
+      class="btn full"
+      onclick="checkout()">
+      Continue to payment
+    </button>
+
+
+    <p class="tiny">
+      You'll be redirected to Flutterwave to complete your donation.
+    </p>
+
+  </div>
+
+</div>
+
+
+<!-- YOUR EXISTING SUPABASE CONFIGURATION -->
+
+<script src="supabase.js"></script>
+
+<script src="app.js"></script>
+
+
+<!-- FLUTTERWAVE DONATION LOGIC -->
+
+<script>
+
+async function checkout() {
+
+  const amountInput =
+    document.getElementById("custom");
+
+  const emailInput =
+    document.getElementById("donorEmail");
+
+
+  const amount =
+    Number(amountInput.value);
+
+
+  const email =
+    emailInput.value.trim();
+
+
+  /*
+   * Validate donation amount
+   */
+
+  if (!amount || amount <= 0) {
+
+    alert("Please enter a valid donation amount.");
+
+    return;
+  }
+
+
+  /*
+   * Validate donor email
+   */
+
+  if (!email) {
+
+    alert("Please enter your email address.");
+
+    return;
+  }
+
+
+  /*
+   * Get the fundraiser ID from the URL.
+   *
+   * Example:
+   * campaign.html?id=123
+   */
+
+  const params =
+    new URLSearchParams(window.location.search);
+
+
+  const campaignId =
+    params.get("id") ||
+    params.get("campaign") ||
+    params.get("campaign_id");
+
+
+  if (!campaignId) {
+
+    alert("Unable to identify this fundraiser.");
+
+    return;
+  }
+
+
+  /*
+   * Create a unique transaction reference.
+   */
+
+  const txRef =
+    "GF-" +
+    Date.now() +
+    "-" +
+    Math.random()
+      .toString(36)
+      .substring(2, 8);
+
+
+  /*
+   * Send the request to our secure
+   * Supabase Edge Function.
+   *
+   * The Flutterwave Secret Key stays
+   * on the server and is NOT placed here.
+   */
+
+  try {
+
+    const { data, error } =
+      await supabase.functions.invoke(
+        "create-flutterwave-payment",
+        {
+
+          body: {
+
+            amount: amount,
+
+            currency: "USD",
+
+            email: email,
+
+            name: "GiveForward Donor",
+
+            tx_ref: txRef,
+
+            campaign_id: campaignId,
+
+            redirect_url:
+              window.location.origin +
+              window.location.pathname +
+              "?id=" +
+              encodeURIComponent(campaignId)
+
+          }
+
+        }
+      );
+
+
+    /*
+     * Supabase function error
+     */
+
+    if (error) {
+
+      console.error(
+        "Supabase payment error:",
+        error
+      );
+
+      alert(
+        "Unable to start the payment. Please try again."
+      );
+
+      return;
+    }
+
+
+    /*
+     * Make sure Flutterwave returned
+     * a checkout link.
+     */
+
+    if (
+      !data ||
+      !data.payment_link
+    ) {
+
+      console.error(
+        "Unexpected payment response:",
+        data
+      );
+
+      alert(
+        "Unable to create the Flutterwave checkout."
+      );
+
+      return;
+    }
+
+
+    /*
+     * Redirect donor to Flutterwave.
+     */
+
+    window.location.href =
+      data.payment_link;
+
+  }
+
+  catch (err) {
+
+    console.error(
+      "Payment error:",
+      err
+    );
+
+    alert(
+      "Something went wrong while starting the payment."
+    );
+
+  }
+
+}
+
+</script>
+
+</body>
+ </html>
