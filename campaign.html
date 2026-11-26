@@ -31,10 +31,8 @@
       href="index.html"
       class="brand"
     >
-
       <span>♥</span>
       GiveForward
-
     </a>
 
 
@@ -58,105 +56,116 @@
 
 <main class="container">
 
-  <div class="campaign-layout">
+  <div class="campaign-wrap">
+
+    <div class="campaign-layout">
 
 
-    <!-- CAMPAIGN -->
+      <!-- CAMPAIGN CONTENT -->
 
-    <section class="campaign-main">
+      <section class="campaign-main">
 
-
-      <div
-        id="campaign-image"
-        class="campaign-image"
-      >
-        GiveForward
-      </div>
-
-
-      <div
-        id="category"
-        class="kicker"
-      >
-        Fundraiser
-      </div>
-
-
-      <h1 id="title">
-        Loading fundraiser...
-      </h1>
-
-
-      <div class="story">
-
-        <p id="story">
-          Loading fundraiser story...
-        </p>
-
-      </div>
-
-
-    </section>
-
-
-
-    <!-- DONATION CARD -->
-
-    <aside class="donation-card">
-
-
-      <div class="progress-wrap">
 
         <div
-          id="progress"
-          class="progress"
-          style="width:0%"
-        ></div>
-
-      </div>
-
-
-      <p>
-
-        <strong id="raised">
-          $0
-        </strong>
-
-        <span id="goal">
-          raised of $0
-        </span>
-
-      </p>
+          id="campaign-image"
+          class="campaign-image"
+        >
+          GiveForward
+        </div>
 
 
-      <p
-        id="donors"
-        class="muted-text"
-      >
-        0 people have donated
-      </p>
+        <div
+          id="category"
+          class="kicker"
+        >
+          Fundraiser
+        </div>
 
 
-      <button
-        type="button"
-        class="btn primary"
-        onclick="openDonate()"
-      >
-        Donate
-      </button>
+        <h1 id="title">
+          Loading fundraiser...
+        </h1>
 
 
-      <button
-        type="button"
-        class="btn secondary"
-        onclick="share()"
-      >
-        Share
-      </button>
+        <div class="story">
+
+          <p id="story">
+            Loading fundraiser story...
+          </p>
+
+        </div>
 
 
-    </aside>
+      </section>
 
+
+
+      <!-- DONATION CARD -->
+
+      <aside class="donate-box">
+
+
+        <div class="bar">
+
+          <i
+            id="progress"
+            style="width:0%"
+          ></i>
+
+        </div>
+
+
+        <div class="raised">
+
+          <b id="raised">
+            $0
+          </b>
+
+          <span id="goal">
+            raised of $0
+          </span>
+
+        </div>
+
+
+        <p
+          id="donors"
+          class="muted-text"
+        >
+          0 people have donated
+        </p>
+
+
+        <button
+          type="button"
+          class="btn full"
+          onclick="openDonate()"
+        >
+          Donate
+        </button>
+
+
+        <button
+          type="button"
+          class="outline full"
+          onclick="share()"
+        >
+          Share
+        </button>
+
+
+        <div class="note">
+
+          Your donation will be securely
+          processed through Flutterwave.
+
+        </div>
+
+
+      </aside>
+
+
+    </div>
 
   </div>
 
@@ -172,7 +181,7 @@
 >
 
 
-  <div class="modal-content">
+  <div class="modal-card">
 
 
     <button
@@ -198,7 +207,7 @@
 
     <!-- AMOUNT BUTTONS -->
 
-    <div class="amount-options">
+    <div class="amounts">
 
 
       <button
@@ -270,15 +279,16 @@
     <button
       id="paymentButton"
       type="button"
-      class="btn primary"
+      class="btn full"
       onclick="checkout()"
     >
       Continue to payment
     </button>
 
 
-    <p class="payment-note">
-      You'll be redirected to Flutterwave to complete your donation.
+    <p class="tiny">
+      You'll be redirected to Flutterwave
+      to complete your donation.
     </p>
 
 
@@ -292,40 +302,32 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-
 <script src="supabase.js"></script>
-
-
-<!-- GIVEFORWARD APP -->
 
 <script src="app.js"></script>
 
 
 
-<!-- PAYMENT -->
+<!-- FLUTTERWAVE PAYMENT -->
 
 <script>
 
 async function checkout() {
 
   const button =
-    document.getElementById(
-      "paymentButton"
-    );
+    document.getElementById("paymentButton");
 
 
   const amount =
     Number(
-      document.getElementById(
-        "custom"
-      ).value
+      document.getElementById("custom").value
     );
 
 
   const email =
-    document.getElementById(
-      "donorEmail"
-    ).value.trim();
+    document.getElementById("donorEmail")
+      .value
+      .trim();
 
 
   const campaignId =
@@ -379,17 +381,14 @@ async function checkout() {
 
 
   const txRef =
-    "GF-" +
-    Date.now();
+    "GF-" + Date.now();
 
 
   const redirectUrl =
     window.location.origin +
     window.location.pathname +
     "?id=" +
-    encodeURIComponent(
-      campaignId
-    );
+    encodeURIComponent(campaignId);
 
 
   button.disabled = true;
@@ -400,12 +399,6 @@ async function checkout() {
 
   try {
 
-    /*
-     * Send the donation request
-     * directly to the Supabase
-     * Edge Function.
-     */
-
     const response =
       await fetch(
         SUPABASE_URL +
@@ -413,7 +406,6 @@ async function checkout() {
         {
 
           method: "POST",
-
 
           headers: {
 
@@ -424,7 +416,6 @@ async function checkout() {
               SUPABASE_PUBLISHABLE_KEY
 
           },
-
 
           body:
             JSON.stringify({
@@ -492,9 +483,7 @@ async function checkout() {
     }
 
 
-    if (
-      !data.payment_link
-    ) {
+    if (!data.payment_link) {
 
       throw new Error(
         "Flutterwave payment link was not returned."
@@ -503,10 +492,9 @@ async function checkout() {
     }
 
 
-    /*
-     * Send donor to
-     * Flutterwave checkout.
-     */
+    button.textContent =
+      "Opening Flutterwave...";
+
 
     window.location.href =
       data.payment_link;
@@ -543,4 +531,5 @@ async function checkout() {
 
 
 </body>
-  </html>
+
+</html>
