@@ -176,19 +176,14 @@ async function checkout() {
   const emailInput =
     document.getElementById("donorEmail");
 
-
   const amount =
     Number(amountInput.value);
-
 
   const email =
     emailInput.value.trim();
 
 
-  /*
-   * Validate donation amount
-   */
-
+  // Validate amount
   if (!amount || amount <= 0) {
 
     alert("Please enter a valid donation amount.");
@@ -197,10 +192,7 @@ async function checkout() {
   }
 
 
-  /*
-   * Validate donor email
-   */
-
+  // Validate email
   if (!email) {
 
     alert("Please enter your email address.");
@@ -209,16 +201,9 @@ async function checkout() {
   }
 
 
-  /*
-   * Get the fundraiser ID from the URL.
-   *
-   * Example:
-   * campaign.html?id=123
-   */
-
+  // Get fundraiser ID from URL
   const params =
     new URLSearchParams(window.location.search);
-
 
   const campaignId =
     params.get("id") ||
@@ -234,10 +219,7 @@ async function checkout() {
   }
 
 
-  /*
-   * Create a unique transaction reference.
-   */
-
+  // Create unique transaction reference
   const txRef =
     "GF-" +
     Date.now() +
@@ -247,114 +229,118 @@ async function checkout() {
       .substring(2, 8);
 
 
-  /*
-   * Send the request to our secure
-   * Supabase Edge Function.
-   *
-   * The Flutterwave Secret Key stays
-   * on the server and is NOT placed here.
-   */
+  // Supabase Edge Function URL
+  const functionUrl =
+    "https://uvfxghdsmwipqoldjsbe.supabase.co/functions/v1/create-flutterwave-payment";
+
+
+  // Your Supabase Publishable key
+  const supabaseKey =
+    SUPABASE_PUBLISHABLE_KEY;
+
 
   try {
 
-    const { data, error } =
-      await supabase.functions.invoke(
-        "create-flutterwave-payment",
-        {
+    const response =
+      await fetch(functionUrl, {
 
-          body: {
+        method: "POST",
 
-            amount: amount,
+        headers: {
 
-            currency: "USD",
+          "Content-Type":
+            "application/json",
 
-            email: email,
+          "apikey":
+            supabaseKey
 
-            name: "GiveForward Donor",
+        },
 
-            tx_ref: txRef,
+        body: JSON.stringify({
 
-            campaign_id: campaignId,
+          amount: amount,
 
-            redirect_url:
-              window.location.origin +
-              window.location.pathname +
-              "?id=" +
-              encodeURIComponent(campaignId)
+          currency: "USD",
 
-          }
+          email: email,
 
-        }
-      );
+          name: "GiveForward Donor",
 
+          tx_ref: txRef,
 
-    /*
-     * Supabase function error
-     */
+          campaign_id: campaignId,
 
-    if (error) {
+          redirect_url:
+            window.location.origin +
+            window.location.pathname +
+            "?id=" +
+            encodeURIComponent(campaignId)
 
-      console.error(
-        "Supabase payment error:",
-        error
-      );
+        })
 
-      alert(
-        "Unable to start the payment. Please try again."
-      );
-
-      return;
-    }
+      });
 
 
-    /*
-     * Make sure Flutterwave returned
-     * a checkout link.
-     */
+    const data =
+      await response.json();
 
-    if (
-      !data ||
-      !data.payment_link
-    ) {
+
+    console.log(
+      "Payment response:",
+      data
+    );
+
+
+    // Check HTTP response
+    if (!response.ok) {
 
       console.error(
-        "Unexpected payment response:",
+        "Payment request failed:",
         data
       );
 
       alert(
-        "Unable to create the Flutterwave checkout."
+        data.error ||
+        "Unable to start the payment."
       );
 
       return;
     }
 
 
-    /*
-     * Redirect donor to Flutterwave.
-     */
+    // Check for Flutterwave checkout link
+    if (!data.payment_link) {
 
+      console.error(
+        "No payment link returned:",
+        data
+      );
+
+      alert(
+        "Flutterwave did not return a payment link."
+      );
+
+      return;
+    }
+
+
+    // Redirect donor to Flutterwave
     window.location.href =
       data.payment_link;
 
   }
 
-  catch (err) {
+  catch (error) {
 
     console.error(
-      "Payment error:",
-      err
+      "Payment connection error:",
+      error
     );
 
     alert(
-      "Something went wrong while starting the payment."
+      "Unable to connect to the payment server."
     );
 
   }
 
 }
-
-</script>
-
-</body>
- </html>
