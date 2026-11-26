@@ -20,64 +20,92 @@
     </a>
 
     <nav>
-      <a href="index.html#discover">Discover</a>
-      <a href="create.html" class="btn">Start a fundraiser</a>
+      <a href="index.html">Discover</a>
+      <a href="create.html">Start a fundraiser</a>
     </nav>
 
   </div>
 </header>
 
 
-<main class="campaign-wrap">
+<main class="container">
 
-  <div class="container campaign-layout">
+  <div class="campaign-layout">
 
-    <article>
+    <!-- CAMPAIGN -->
+    <section class="campaign-main">
 
-      <div id="campaign-image" class="campaign-image">
+      <div
+        id="campaign-image"
+        class="campaign-image"
+      >
+        GiveForward
+      </div>
+
+      <div
+        id="category"
+        class="kicker"
+      >
         Fundraiser
       </div>
 
-      <div class="kicker" id="category"></div>
+      <h1 id="title">
+        Loading fundraiser...
+      </h1>
 
-      <h1 id="title">Loading...</h1>
+      <div class="story">
 
-      <p class="story" id="story"></p>
+        <p id="story">
+          Loading fundraiser story...
+        </p>
 
-    </article>
-
-
-    <aside class="donate-box">
-
-      <div class="bar">
-        <i id="progress"></i>
       </div>
 
-      <div class="raised">
-        <b id="raised"></b>
-        <span id="goal"></span>
+    </section>
+
+
+    <!-- DONATION BOX -->
+    <aside class="donation-card">
+
+      <div class="progress-wrap">
+
+        <div
+          id="progress"
+          class="progress"
+          style="width:0%"
+        ></div>
+
       </div>
 
-      <p id="donors" class="muted-text"></p>
+
+      <p>
+        <strong id="raised">$0</strong>
+        <span id="goal"> raised of $0</span>
+      </p>
+
+
+      <p
+        id="donors"
+        class="muted-text"
+      >
+        0 people have donated
+      </p>
 
 
       <button
-        class="btn full"
-        onclick="openDonate()">
-        Donate now
+        class="btn primary"
+        onclick="openDonate()"
+      >
+        Donate
       </button>
 
 
       <button
-        class="outline full"
-        onclick="share()">
-        Share fundraiser
+        class="btn secondary"
+        onclick="share()"
+      >
+        Share
       </button>
-
-
-      <div class="note">
-        Secure payments are processed through Flutterwave.
-      </div>
 
     </aside>
 
@@ -88,69 +116,109 @@
 
 <!-- DONATION MODAL -->
 
-<div id="modal" class="modal">
+<div
+  id="modal"
+  class="modal"
+>
 
-  <div class="modal-card">
+  <div class="modal-content">
 
     <button
       class="close"
-      onclick="closeDonate()">
+      onclick="closeDonate()"
+      aria-label="Close"
+    >
       ×
     </button>
 
 
-    <h2>Support this fundraiser</h2>
+    <h2>
+      Support this fundraiser
+    </h2>
 
 
-    <p class="muted-text">
-      Choose an amount to continue.
+    <p>
+      Choose how much you'd like to donate.
     </p>
 
 
-    <div class="amounts">
+    <!-- AMOUNT BUTTONS -->
 
-      <button type="button" onclick="pick(10)">
+    <div class="amount-options">
+
+      <button
+        type="button"
+        onclick="pick(10)"
+      >
         $10
       </button>
 
-      <button type="button" onclick="pick(25)">
+      <button
+        type="button"
+        onclick="pick(25)"
+      >
         $25
       </button>
 
-      <button type="button" onclick="pick(50)">
+      <button
+        type="button"
+        onclick="pick(50)"
+      >
         $50
       </button>
 
-      <button type="button" onclick="pick(100)">
+      <button
+        type="button"
+        onclick="pick(100)"
+      >
         $100
       </button>
 
     </div>
 
 
+    <!-- CUSTOM AMOUNT -->
+
+    <label for="custom">
+      Donation amount
+    </label>
+
     <input
       id="custom"
       type="number"
       min="1"
       step="0.01"
-      placeholder="Custom amount">
+      value="25"
+      placeholder="Enter amount"
+    >
 
+
+    <!-- EMAIL -->
+
+    <label for="donorEmail">
+      Email address
+    </label>
 
     <input
       id="donorEmail"
       type="email"
-      placeholder="Your email address">
+      placeholder="you@example.com"
+      autocomplete="email"
+    >
 
+
+    <!-- PAYMENT BUTTON -->
 
     <button
-      type="button"
-      class="btn full"
-      onclick="checkout()">
+      id="paymentButton"
+      class="btn primary"
+      onclick="checkout()"
+    >
       Continue to payment
     </button>
 
 
-    <p class="tiny">
+    <p class="payment-note">
       You'll be redirected to Flutterwave to complete your donation.
     </p>
 
@@ -159,8 +227,6 @@
 </div>
 
 
-<!-- SUPABASE -->
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="supabase.js"></script>
@@ -168,11 +234,19 @@
 <script src="app.js"></script>
 
 
-<!-- FLUTTERWAVE PAYMENT -->
-
 <script>
 
+/*
+ * GiveForward payment checkout
+ *
+ * This function sends the donation directly to the
+ * Supabase Edge Function.
+ */
+
 async function checkout() {
+
+  const button =
+    document.getElementById("paymentButton");
 
   const amountInput =
     document.getElementById("custom");
@@ -180,71 +254,124 @@ async function checkout() {
   const emailInput =
     document.getElementById("donorEmail");
 
+
   const amount =
     Number(amountInput.value);
+
 
   const email =
     emailInput.value.trim();
 
 
   if (!amount || amount <= 0) {
+
     alert("Please enter a valid donation amount.");
+
     return;
+
   }
 
 
   if (!email) {
+
     alert("Please enter your email address.");
+
     return;
+
   }
 
 
-  const params =
-    new URLSearchParams(window.location.search);
+  if (!email.includes("@")) {
+
+    alert("Please enter a valid email address.");
+
+    return;
+
+  }
+
 
   const campaignId =
-    params.get("id") ||
-    params.get("campaign") ||
-    params.get("campaign_id");
+    new URLSearchParams(
+      window.location.search
+    ).get("id");
 
 
   if (!campaignId) {
-    alert("Unable to identify this fundraiser.");
+
+    alert("Campaign ID is missing.");
+
     return;
+
   }
 
 
   const txRef =
     "GF-" +
-    Date.now() +
-    "-" +
-    Math.random()
-      .toString(36)
-      .substring(2, 8);
+    Date.now();
+
+
+  const redirectUrl =
+    window.location.origin +
+    window.location.pathname +
+    "?id=" +
+    encodeURIComponent(campaignId);
+
+
+  button.disabled = true;
+
+  button.textContent =
+    "Connecting to payment...";
 
 
   try {
 
-    const { data, error } =
-      await supabase.functions.invoke(
-        "create-flutterwave-payment",
+    const response =
+      await fetch(
+        "https://uvfxghdsmwipqoldjsbe.supabase.co/functions/v1/create-flutterwave-payment",
         {
-          body: {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY
+          },
+
+          body: JSON.stringify({
+
             amount: amount,
+
             currency: "USD",
+
             email: email,
+
             name: "GiveForward Donor",
+
             tx_ref: txRef,
+
             campaign_id: campaignId,
 
-            redirect_url:
-              window.location.origin +
-              window.location.pathname +
-              "?id=" +
-              encodeURIComponent(campaignId)
-          }
+            redirect_url: redirectUrl
+
+          })
+
         }
       );
+
+
+    let data = null;
+
+    try {
+
+      data =
+        await response.json();
+
+    }
+
+    catch {
+
+      data = null;
+
+    }
 
 
     console.log(
@@ -253,38 +380,32 @@ async function checkout() {
     );
 
 
-    if (error) {
+    if (!response.ok) {
 
-      console.error(
-        "Supabase Edge Function error:",
-        error
+      throw new Error(
+        data?.error ||
+        data?.message ||
+        "Payment server returned an error."
       );
 
-      alert(
-        "Payment error: " +
-        (error.message ||
-          "Unable to start payment.")
-      );
-
-      return;
     }
 
 
-    if (!data || !data.payment_link) {
+    if (
+      !data ||
+      !data.payment_link
+    ) {
 
-      console.error(
-        "No payment link returned:",
-        data
+      throw new Error(
+        "Flutterwave payment link was not returned."
       );
 
-      alert(
-        "Flutterwave did not return a payment link."
-      );
-
-      return;
     }
 
 
+    /*
+     * Flutterwave checkout
+     */
     window.location.href =
       data.payment_link;
 
@@ -293,21 +414,28 @@ async function checkout() {
   catch (error) {
 
     console.error(
-      "Payment error:",
+      "GiveForward payment error:",
       error
     );
 
+
     alert(
       "Payment connection failed: " +
-      (error.message ||
-        "Unknown error")
+      error.message
     );
 
-  }
+
+    button.disabled = false;
+
+    button.textContent =
+      "Continue to payment";
 
   }
+
+}
 
 </script>
 
+
 </body>
-          </html>
+        </html>
