@@ -180,7 +180,6 @@ async function checkout() {
   const emailInput =
     document.getElementById("donorEmail");
 
-
   const amount =
     Number(amountInput.value);
 
@@ -189,26 +188,19 @@ async function checkout() {
 
 
   if (!amount || amount <= 0) {
-
     alert("Please enter a valid donation amount.");
-
     return;
   }
 
 
   if (!email) {
-
     alert("Please enter your email address.");
-
     return;
   }
 
 
   const params =
-    new URLSearchParams(
-      window.location.search
-    );
-
+    new URLSearchParams(window.location.search);
 
   const campaignId =
     params.get("id") ||
@@ -217,9 +209,7 @@ async function checkout() {
 
 
   if (!campaignId) {
-
     alert("Unable to identify this fundraiser.");
-
     return;
   }
 
@@ -233,107 +223,62 @@ async function checkout() {
       .substring(2, 8);
 
 
-  const functionUrl =
-    "https://uvfxghdsmwipqoldjsbe.supabase.co/functions/v1/create-flutterwave-payment";
-
-
   try {
 
-    const response =
-      await fetch(
-        functionUrl,
+    const { data, error } =
+      await supabase.functions.invoke(
+        "create-flutterwave-payment",
         {
+          body: {
+            amount: amount,
+            currency: "USD",
+            email: email,
+            name: "GiveForward Donor",
+            tx_ref: txRef,
+            campaign_id: campaignId,
 
-          method: "POST",
-
-          headers: {
-
-            "Content-Type":
-              "application/json",
-
-            "apikey":
-              SUPABASE_PUBLISHABLE_KEY
-
-          },
-
-          body:
-            JSON.stringify({
-
-              amount:
-                amount,
-
-              currency:
-                "USD",
-
-              email:
-                email,
-
-              name:
-                "GiveForward Donor",
-
-              tx_ref:
-                txRef,
-
-              campaign_id:
-                campaignId,
-
-              redirect_url:
-                window.location.origin +
-                window.location.pathname +
-                "?id=" +
-                encodeURIComponent(
-                  campaignId
-                )
-
-            })
-
+            redirect_url:
+              window.location.origin +
+              window.location.pathname +
+              "?id=" +
+              encodeURIComponent(campaignId)
+          }
         }
       );
 
 
-    let data = {};
-
-    try {
-
-      data =
-        await response.json();
-
-    }
-
-    catch {
-
-      data = {};
-
-    }
-
-
     console.log(
       "GiveForward payment response:",
-      response.status,
       data
     );
 
 
-    if (!response.ok) {
+    if (error) {
+
+      console.error(
+        "Supabase Edge Function error:",
+        error
+      );
 
       alert(
-        data.error ||
-        "Payment request failed. Please try again."
+        "Payment error: " +
+        (error.message ||
+          "Unable to start payment.")
       );
 
       return;
     }
 
 
-    if (!data.payment_link) {
+    if (!data || !data.payment_link) {
+
+      console.error(
+        "No payment link returned:",
+        data
+      );
 
       alert(
         "Flutterwave did not return a payment link."
-      );
-
-      console.error(
-        "Missing payment_link:",
-        data
       );
 
       return;
@@ -348,17 +293,19 @@ async function checkout() {
   catch (error) {
 
     console.error(
-      "Payment connection error:",
+      "Payment error:",
       error
     );
 
     alert(
-      "Unable to connect to the payment server."
+      "Payment connection failed: " +
+      (error.message ||
+        "Unknown error")
     );
 
   }
 
-}
+  }
 
 </script>
 
