@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -108,19 +109,19 @@
 
     <div class="amounts">
 
-      <button onclick="pick(10)">
+      <button type="button" onclick="pick(10)">
         $10
       </button>
 
-      <button onclick="pick(25)">
+      <button type="button" onclick="pick(25)">
         $25
       </button>
 
-      <button onclick="pick(50)">
+      <button type="button" onclick="pick(50)">
         $50
       </button>
 
-      <button onclick="pick(100)">
+      <button type="button" onclick="pick(100)">
         $100
       </button>
 
@@ -142,6 +143,7 @@
 
 
     <button
+      type="button"
       class="btn full"
       onclick="checkout()">
       Continue to payment
@@ -157,6 +159,8 @@
 </div>
 
 
+<!-- SUPABASE -->
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="supabase.js"></script>
@@ -164,7 +168,7 @@
 <script src="app.js"></script>
 
 
-<!-- FLUTTERWAVE DONATION LOGIC -->
+<!-- FLUTTERWAVE PAYMENT -->
 
 <script>
 
@@ -176,6 +180,7 @@ async function checkout() {
   const emailInput =
     document.getElementById("donorEmail");
 
+
   const amount =
     Number(amountInput.value);
 
@@ -183,7 +188,6 @@ async function checkout() {
     emailInput.value.trim();
 
 
-  // Validate amount
   if (!amount || amount <= 0) {
 
     alert("Please enter a valid donation amount.");
@@ -192,7 +196,6 @@ async function checkout() {
   }
 
 
-  // Validate email
   if (!email) {
 
     alert("Please enter your email address.");
@@ -201,9 +204,11 @@ async function checkout() {
   }
 
 
-  // Get fundraiser ID from URL
   const params =
-    new URLSearchParams(window.location.search);
+    new URLSearchParams(
+      window.location.search
+    );
+
 
   const campaignId =
     params.get("id") ||
@@ -219,7 +224,6 @@ async function checkout() {
   }
 
 
-  // Create unique transaction reference
   const txRef =
     "GF-" +
     Date.now() +
@@ -229,102 +233,113 @@ async function checkout() {
       .substring(2, 8);
 
 
-  // Supabase Edge Function URL
   const functionUrl =
     "https://uvfxghdsmwipqoldjsbe.supabase.co/functions/v1/create-flutterwave-payment";
-
-
-  // Your Supabase Publishable key
-  const supabaseKey =
-    SUPABASE_PUBLISHABLE_KEY;
 
 
   try {
 
     const response =
-      await fetch(functionUrl, {
+      await fetch(
+        functionUrl,
+        {
 
-        method: "POST",
+          method: "POST",
 
-        headers: {
+          headers: {
 
-          "Content-Type":
-            "application/json",
+            "Content-Type":
+              "application/json",
 
-          "apikey":
-            supabaseKey
+            "apikey":
+              SUPABASE_PUBLISHABLE_KEY
 
-        },
+          },
 
-        body: JSON.stringify({
+          body:
+            JSON.stringify({
 
-          amount: amount,
+              amount:
+                amount,
 
-          currency: "USD",
+              currency:
+                "USD",
 
-          email: email,
+              email:
+                email,
 
-          name: "GiveForward Donor",
+              name:
+                "GiveForward Donor",
 
-          tx_ref: txRef,
+              tx_ref:
+                txRef,
 
-          campaign_id: campaignId,
+              campaign_id:
+                campaignId,
 
-          redirect_url:
-            window.location.origin +
-            window.location.pathname +
-            "?id=" +
-            encodeURIComponent(campaignId)
+              redirect_url:
+                window.location.origin +
+                window.location.pathname +
+                "?id=" +
+                encodeURIComponent(
+                  campaignId
+                )
 
-        })
+            })
 
-      });
+        }
+      );
 
 
-    const data =
-      await response.json();
+    let data = {};
+
+    try {
+
+      data =
+        await response.json();
+
+    }
+
+    catch {
+
+      data = {};
+
+    }
 
 
     console.log(
-      "Payment response:",
+      "GiveForward payment response:",
+      response.status,
       data
     );
 
 
-    // Check HTTP response
     if (!response.ok) {
-
-      console.error(
-        "Payment request failed:",
-        data
-      );
 
       alert(
         data.error ||
-        "Unable to start the payment."
+        "Payment request failed. Please try again."
       );
 
       return;
     }
 
 
-    // Check for Flutterwave checkout link
     if (!data.payment_link) {
-
-      console.error(
-        "No payment link returned:",
-        data
-      );
 
       alert(
         "Flutterwave did not return a payment link."
       );
 
+      console.error(
+        "Missing payment_link:",
+        data
+      );
+
       return;
     }
 
 
-    // Redirect donor to Flutterwave
     window.location.href =
       data.payment_link;
 
@@ -344,3 +359,8 @@ async function checkout() {
   }
 
 }
+
+</script>
+
+</body>
+          </html>
