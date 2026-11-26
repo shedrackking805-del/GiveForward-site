@@ -6,8 +6,10 @@ const seed = [
     raised: 7200,
     goal: 10000,
     donors: 84,
-    story: "We are raising funds to provide essential school supplies and learning materials to children in our community. Every contribution helps give a child the tools they need to learn."
+    story:
+      "We are raising funds to provide essential school supplies and learning materials to children in our community. Every contribution helps give a child the tools they need to learn."
   },
+
   {
     id: 2,
     title: "Emergency support for a family rebuilding",
@@ -15,8 +17,10 @@ const seed = [
     raised: 4850,
     goal: 8000,
     donors: 61,
-    story: "After an unexpected emergency, this family needs help covering immediate living expenses while they get back on their feet. Thank you for helping them through this difficult period."
+    story:
+      "After an unexpected emergency, this family needs help covering immediate living expenses while they get back on their feet. Thank you for helping them through this difficult period."
   },
+
   {
     id: 3,
     title: "Community project to improve our neighborhood",
@@ -24,288 +28,232 @@ const seed = [
     raised: 3150,
     goal: 5000,
     donors: 43,
-    story: "Our community is coming together to improve a shared space and create a safer, more welcoming environment for everyone. Your support can help us reach the finish line."
+    story:
+      "Our community is coming together to improve a shared space and create a safer, more welcoming environment for everyone. Your support can help us reach the finish line."
   }
 ];
+
 
 let campaigns =
   JSON.parse(
     localStorage.getItem("giveforward_campaigns") || "null"
   ) || seed;
 
-const save = () =>
+
+function save() {
+
   localStorage.setItem(
     "giveforward_campaigns",
     JSON.stringify(campaigns)
   );
 
-const fmt = n =>
-  "$" + Number(n).toLocaleString("en-US");
+}
+
+
+function fmt(number) {
+
+  return "$" +
+    Number(number).toLocaleString("en-US");
+
+}
 
 
 function card(c) {
 
-  let p =
-    Math.min(100, (c.raised / c.goal) * 100);
+  const percentage =
+    Math.min(
+      100,
+      (Number(c.raised) / Number(c.goal)) * 100
+    );
+
 
   return `
     <article class="card">
 
-      <a href="campaign.html?id=${c.id}">
+      <a href="campaign.html?id=${encodeURIComponent(c.id)}">
+
         <div class="thumb">
-          ${c.category}
+          ${c.category || "Fundraiser"}
         </div>
+
       </a>
+
 
       <div class="card-body">
 
         <div class="kicker">
-          ${c.category}
+          ${c.category || "Fundraiser"}
         </div>
+
 
         <h3>
-          <a href="campaign.html?id=${c.id}">
+
+          <a href="campaign.html?id=${encodeURIComponent(c.id)}">
             ${c.title}
           </a>
+
         </h3>
 
+
         <div class="bar">
-          <i style="width:${p}%"></i>
+
+          <i style="width:${percentage}%"></i>
+
         </div>
+
 
         <p>
           <b>${fmt(c.raised)}</b>
           raised of ${fmt(c.goal)}
         </p>
 
+
         <p class="muted-text">
-          ${c.donors} people have donated
+          ${c.donors || 0} people have donated
         </p>
 
       </div>
 
     </article>
   `;
+
 }
 
 
 function render(list = campaigns) {
 
-  let e =
+  const element =
     document.getElementById("campaigns");
 
-  if (e) {
+  if (!element) return;
 
-    e.innerHTML =
-      list.map(card).join("") ||
-      "<p>No fundraisers found.</p>";
 
-  }
+  element.innerHTML =
+    list.length
+      ? list.map(card).join("")
+      : "<p>No fundraisers found.</p>";
+
 }
 
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+function setText(id, text) {
 
-    render();
+  const element =
+    document.getElementById(id);
 
-
-    const s =
-      document.getElementById("search");
-
-    if (s) {
-
-      s.oninput = () => {
-
-        let q =
-          s.value.toLowerCase();
-
-        render(
-          campaigns.filter(
-            c =>
-              (
-                c.title +
-                " " +
-                c.category +
-                " " +
-                c.story
-              )
-                .toLowerCase()
-                .includes(q)
-          )
-        );
-
-      };
-
-    }
-
-
-    const f =
-      document.getElementById("form");
-
-    if (f) {
-
-      f.onsubmit = e => {
-
-        e.preventDefault();
-
-        let d =
-          new FormData(f);
-
-        let c = {
-
-          id: Date.now(),
-
-          title:
-            d.get("title"),
-
-          category:
-            d.get("category"),
-
-          raised: 0,
-
-          goal:
-            Number(d.get("goal")),
-
-          donors: 0,
-
-          story:
-            d.get("story"),
-
-          image:
-            d.get("image")
-
-        };
-
-        campaigns.unshift(c);
-
-        save();
-
-        location.href =
-          "campaign.html?id=" +
-          c.id;
-
-      };
-
-    }
-
-
-    const id =
-      new URLSearchParams(
-        location.search
-      ).get("id");
-
-    if (id) {
-
-      loadCampaign(id);
-
-    }
-
+  if (element) {
+    element.textContent = text;
   }
-);
+
+}
 
 
 function loadCampaign(id) {
 
-  let c =
+  const campaign =
     campaigns.find(
-      x =>
-        String(x.id) ===
-        String(id)
+      c =>
+        String(c.id) === String(id)
     );
 
-  if (!c) return;
+
+  if (!campaign) {
+
+    setText(
+      "title",
+      "Fundraiser not found"
+    );
+
+    setText(
+      "story",
+      "This fundraiser could not be found."
+    );
+
+    return;
+
+  }
 
 
   document.title =
-    c.title +
+    campaign.title +
     " — GiveForward";
 
 
   setText(
     "title",
-    c.title
+    campaign.title
   );
+
 
   setText(
     "category",
-    c.category
+    campaign.category
   );
+
 
   setText(
     "story",
-    c.story
+    campaign.story
   );
+
 
   setText(
     "raised",
-    fmt(c.raised)
+    fmt(campaign.raised)
   );
+
 
   setText(
     "goal",
     " raised of " +
-    fmt(c.goal)
+    fmt(campaign.goal)
   );
+
 
   setText(
     "donors",
-    c.donors +
+    (campaign.donors || 0) +
     " people have donated"
   );
 
 
-  let p =
+  const percentage =
     Math.min(
       100,
-      (c.raised / c.goal) * 100
+      (Number(campaign.raised) /
+        Number(campaign.goal)) *
+        100
     );
 
-  let progress =
-    document.getElementById(
-      "progress"
-    );
+
+  const progress =
+    document.getElementById("progress");
+
 
   if (progress) {
 
     progress.style.width =
-      p + "%";
+      percentage + "%";
 
   }
 
 
-  if (c.image) {
+  if (campaign.image) {
 
-    let e =
+    const image =
       document.getElementById(
         "campaign-image"
       );
 
-    if (e) {
 
-      e.style.backgroundImage =
-        `url("${c.image}")`;
+    if (image) {
 
-      e.textContent =
-        "";
+      image.style.backgroundImage =
+        `url("${campaign.image}")`;
+
+      image.textContent = "";
 
     }
-
-  }
-
-}
-
-
-function setText(id, t) {
-
-  let e =
-    document.getElementById(id);
-
-  if (e) {
-
-    e.textContent =
-      t;
 
   }
 
@@ -317,63 +265,190 @@ let selected = 25;
 
 function openDonate() {
 
-  document
-    .getElementById("modal")
-    ?.classList.add("open");
+  const modal =
+    document.getElementById("modal");
+
+  if (modal) {
+
+    modal.classList.add("open");
+
+  }
 
 }
 
 
 function closeDonate() {
 
-  document
-    .getElementById("modal")
-    ?.classList.remove("open");
+  const modal =
+    document.getElementById("modal");
 
-}
+  if (modal) {
 
-
-function pick(n) {
-
-  selected = n;
-
-  document.getElementById(
-    "custom"
-  ).value = n;
-
-}
-
-
-/*
- * IMPORTANT:
- *
- * The old demo checkout function
- * has been removed.
- *
- * Real Flutterwave checkout is now
- * handled by campaign.html.
- */
-
-
-async function share() {
-
-  try {
-
-    await navigator.clipboard
-      .writeText(location.href);
-
-    alert(
-      "Campaign link copied!"
-    );
-
-  }
-
-  catch {
-
-    alert(
-      "Copy the page URL to share this fundraiser."
-    );
+    modal.classList.remove("open");
 
   }
 
 }
+
+
+function pick(amount) {
+
+  selected = amount;
+
+
+  const custom =
+    document.getElementById("custom");
+
+
+  if (custom) {
+
+    custom.value =
+      amount;
+
+  }
+
+}
+
+
+function share() {
+
+  navigator.clipboard
+    .writeText(window.location.href)
+    .then(() => {
+
+      alert("Campaign link copied!");
+
+    })
+    .catch(() => {
+
+      alert(
+        "Copy the page URL to share this fundraiser."
+      );
+
+    });
+
+}
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    render();
+
+
+    const search =
+      document.getElementById("search");
+
+
+    if (search) {
+
+      search.addEventListener(
+        "input",
+        () => {
+
+          const query =
+            search.value
+              .toLowerCase();
+
+
+          render(
+            campaigns.filter(
+              campaign =>
+                (
+                  campaign.title +
+                  " " +
+                  campaign.category +
+                  " " +
+                  campaign.story
+                )
+                  .toLowerCase()
+                  .includes(query)
+            )
+          );
+
+        }
+      );
+
+    }
+
+
+    const form =
+      document.getElementById("form");
+
+
+    if (form) {
+
+      form.addEventListener(
+        "submit",
+        event => {
+
+          event.preventDefault();
+
+
+          const data =
+            new FormData(form);
+
+
+          const campaign = {
+
+            id: Date.now(),
+
+            title:
+              data.get("title"),
+
+            category:
+              data.get("category"),
+
+            raised: 0,
+
+            goal:
+              Number(
+                data.get("goal")
+              ),
+
+            donors: 0,
+
+            story:
+              data.get("story"),
+
+            image:
+              data.get("image")
+
+          };
+
+
+          campaigns.unshift(
+            campaign
+          );
+
+
+          save();
+
+
+          window.location.href =
+            "campaign.html?id=" +
+            encodeURIComponent(
+              campaign.id
+            );
+
+        }
+      );
+
+    }
+
+
+    const id =
+      new URLSearchParams(
+        window.location.search
+      ).get("id");
+
+
+    if (id) {
+
+      loadCampaign(id);
+
+    }
+
+  }
+);
