@@ -6,49 +6,171 @@
 <title>GiveForward — Fundraising for what matters</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
 <header>
   <div class="container nav">
-    <a href="index.html" class="brand"><span>♥</span> GiveForward</a>
-    <nav><a href="#discover">Discover</a><a href="#how">How it works</a><a href="create.html" class="btn">Start a fundraiser</a></nav>
+
+    <a href="index.html" class="brand">
+      <span>♥</span> GiveForward
+    </a>
+
+    <nav>
+      <a href="#discover">Discover</a>
+      <a href="#how">How it works</a>
+
+      <span id="auth-area">
+        <a href="create.html" class="btn">Start a fundraiser</a>
+      </span>
+    </nav>
+
   </div>
 </header>
 
+
 <section class="hero">
  <div class="container hero-inner">
+
   <div class="hero-copy">
+
    <div class="pill">Fundraising made simple</div>
-   <h1>Help make a difference for the people and causes you care about.</h1>
-   <p>Create a fundraiser, tell your story and invite your community to support you.</p>
-   <div class="actions"><a href="create.html" class="btn large">Start a fundraiser</a><a href="#discover" class="link">Find a fundraiser →</a></div>
-   <div class="trust"><span>✓ Easy to start</span><span>✓ Share anywhere</span><span>✓ Built for communities</span></div>
+
+   <h1>
+     Help make a difference for the people and causes you care about.
+   </h1>
+
+   <p>
+     Create a fundraiser, tell your story and invite your community to support you.
+   </p>
+
+   <div class="actions">
+     <a href="create.html" class="btn large">Start a fundraiser</a>
+     <a href="#discover" class="link">Find a fundraiser →</a>
+   </div>
+
+   <div class="trust">
+     <span>✓ Easy to start</span>
+     <span>✓ Share anywhere</span>
+     <span>✓ Built for communities</span>
+   </div>
+
   </div>
+
+
   <div class="hero-visual">
-   <div class="hero-photo">Your story<br><small>can inspire support</small></div>
-   <div class="floating-card"><b>$7,200</b><span>raised of $10,000</span><div class="bar"><i style="width:72%"></i></div></div>
+
+   <div class="hero-photo">
+     Your story<br>
+     <small>can inspire support</small>
+   </div>
+
+   <div class="floating-card">
+
+     <b>$7,200</b>
+
+     <span>raised of $10,000</span>
+
+     <div class="bar">
+       <i style="width:72%"></i>
+     </div>
+
+   </div>
+
   </div>
+
  </div>
 </section>
+
 
 <section id="discover" class="section">
+
  <div class="container">
-  <div class="heading-row"><div><div class="kicker">Discover</div><h2>Fundraisers you can support</h2></div><input id="search" placeholder="Search fundraisers..." aria-label="Search fundraisers"></div>
+
+  <div class="heading-row">
+
+   <div>
+    <div class="kicker">Discover</div>
+    <h2>Fundraisers you can support</h2>
+   </div>
+
+   <input
+     id="search"
+     placeholder="Search fundraisers..."
+     aria-label="Search fundraisers"
+   >
+
+  </div>
+
   <div id="campaigns" class="grid"></div>
+
  </div>
+
 </section>
+
 
 <section id="how" class="section muted-bg">
+
  <div class="container">
-  <div class="center"><div class="kicker">How it works</div><h2>Three simple steps</h2></div>
-  <div class="steps">
-   <div><strong>01</strong><h3>Create</h3><p>Set your goal and share the reason you're raising money.</p></div>
-   <div><strong>02</strong><h3>Share</h3><p>Send your fundraiser to friends, family and your wider community.</p></div>
-   <div><strong>03</strong><h3>Get support</h3><p>People can contribute and follow your fundraising progress.</p></div>
+
+  <div class="center">
+
+   <div class="kicker">How it works</div>
+
+   <h2>Three simple steps</h2>
+
   </div>
+
+
+  <div class="steps">
+
+   <div>
+    <strong>01</strong>
+    <h3>Create</h3>
+    <p>
+      Set your goal and share the reason you're raising money.
+    </p>
+   </div>
+
+   <div>
+    <strong>02</strong>
+    <h3>Share</h3>
+    <p>
+      Send your fundraiser to friends, family and your wider community.
+    </p>
+   </div>
+
+   <div>
+    <strong>03</strong>
+    <h3>Get support</h3>
+    <p>
+      People can contribute and follow your fundraising progress.
+    </p>
+   </div>
+
+  </div>
+
  </div>
+
 </section>
 
-<footer><div class="container foot"><b>♥ GiveForward</b><span>Fundraising made simple.</span></div></footer>
+
+<footer>
+
+ <div class="container foot">
+
+  <b>♥ GiveForward</b>
+
+  <span>Fundraising made simple.</span>
+
+ </div>
+
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
 <script src="app.js"></script>
+
 </body>
 </html>
