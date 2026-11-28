@@ -6,6 +6,8 @@ const seed = [
     raised: 7200,
     goal: 10000,
     donors: 84,
+    image:
+      "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80",
     story:
       "We are raising funds to provide essential school supplies and learning materials to children in our community. Every contribution helps give a child the tools they need to learn."
   },
@@ -17,6 +19,8 @@ const seed = [
     raised: 4850,
     goal: 8000,
     donors: 61,
+    image:
+      "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=80",
     story:
       "After an unexpected emergency, this family needs help covering immediate living expenses while they get back on their feet. Thank you for helping them through this difficult period."
   },
@@ -28,6 +32,8 @@ const seed = [
     raised: 3150,
     goal: 5000,
     donors: 43,
+    image:
+      "https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1200&q=80",
     story:
       "Our community is coming together to improve a shared space and create a safer, more welcoming environment for everyone. Your support can help us reach the finish line."
   }
@@ -66,14 +72,33 @@ function card(c) {
       (Number(c.raised) / Number(c.goal)) * 100
     );
 
+  const image = c.image || "";
+
 
   return `
     <article class="card">
 
       <a href="campaign.html?id=${encodeURIComponent(c.id)}">
 
-        <div class="thumb">
-          ${c.category || "Fundraiser"}
+        <div
+          class="thumb"
+          style="
+            background-image:url('${image}');
+            background-size:cover;
+            background-position:center;
+            min-height:220px;
+            display:flex;
+            align-items:flex-end;
+            padding:18px;
+          "
+        >
+
+          ${
+            image
+              ? ""
+              : `<span>${c.category || "Fundraiser"}</span>`
+          }
+
         </div>
 
       </a>
@@ -142,7 +167,9 @@ function setText(id, text) {
     document.getElementById(id);
 
   if (element) {
+
     element.textContent = text;
+
   }
 
 }
@@ -251,6 +278,12 @@ function loadCampaign(id) {
       image.style.backgroundImage =
         `url("${campaign.image}")`;
 
+      image.style.backgroundSize =
+        "cover";
+
+      image.style.backgroundPosition =
+        "center";
+
       image.textContent = "";
 
     }
@@ -330,11 +363,126 @@ function share() {
 }
 
 
+/* ----------------------------------
+   LOGIN / ACCOUNT NAVIGATION
+---------------------------------- */
+
+async function updateAuthArea() {
+
+  const authArea =
+    document.getElementById("auth-area");
+
+  if (!authArea) return;
+
+
+  try {
+
+    const {
+      data,
+      error
+    } =
+      await supabase.auth.getUser();
+
+
+    if (error || !data.user) {
+
+      authArea.innerHTML = `
+        <a href="create.html" class="btn">
+          Start a fundraiser
+        </a>
+      `;
+
+      return;
+
+    }
+
+
+    const user =
+      data.user;
+
+
+    const email =
+      user.email || "Account";
+
+
+    authArea.innerHTML = `
+
+      <a href="account.html" class="account-link">
+        ${email}
+      </a>
+
+      <button
+        id="signout-btn"
+        class="btn"
+        type="button"
+      >
+        Sign out
+      </button>
+
+    `;
+
+
+    const signout =
+      document.getElementById(
+        "signout-btn"
+      );
+
+
+    if (signout) {
+
+      signout.addEventListener(
+        "click",
+        async () => {
+
+          const {
+            error
+          } =
+            await supabase.auth.signOut();
+
+
+          if (error) {
+
+            alert(
+              "Unable to sign out right now."
+            );
+
+            return;
+
+          }
+
+
+          window.location.href =
+            "index.html";
+
+        }
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(
+      "Authentication check failed:",
+      error
+    );
+
+  }
+
+}
+
+
+/* ----------------------------------
+   PAGE INITIALIZATION
+---------------------------------- */
+
 document.addEventListener(
   "DOMContentLoaded",
-  () => {
+  async () => {
 
     render();
+
+
+    await updateAuthArea();
 
 
     const search =
